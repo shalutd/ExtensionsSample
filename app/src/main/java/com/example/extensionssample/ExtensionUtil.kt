@@ -1,17 +1,21 @@
 package com.example.extensionssample
 
+import android.app.AlertDialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
+import android.text.*
 import android.text.method.LinkMovementMethod
 import android.text.style.*
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import android.widget.Toast.makeText
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,11 +38,11 @@ object ExtensionUtil {
         visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
-    fun View.setHeight(height: Int) {
+    fun View.setViewHeight(height: Int) {
         layoutParams?.height = height
     }
 
-    fun View.setWidth(width: Int) {
+    fun View.setViewWidth(width: Int) {
         layoutParams?.width = width
     }
 
@@ -114,7 +118,7 @@ object ExtensionUtil {
         val simpleDateFormat = SimpleDateFormat(format, Locale.getDefault())
         return simpleDateFormat.parse(format)
     }
-// End Region Date
+    // End Region Date
 
     // Region SpannableString
     fun SpannableString.setColor(color: String, start: Int, end: Int): SpannableString {
@@ -151,5 +155,46 @@ object ExtensionUtil {
         this.setSpan(StrikethroughSpan(), start, end, 0)
         return this
     }
-// End Region SpannableString
+    // End Region SpannableString
+
+    // Region Toast
+    fun Context.showShortToast(text: String) {
+        makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    fun Context.showLongToast(text: String) {
+        makeText(this, text, Toast.LENGTH_LONG).show()
+    }
+    // End Region Toast
+
+    fun Context.showDialog(title: String, message: String,
+        positiveFunc: (() -> Unit)? = null, negativeFunc: (() -> Unit)? = null
+    ) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(
+                "Yes"
+            ) { _, _ -> positiveFunc?.invoke() }
+            .setNegativeButton("No") { _, _ ->
+                negativeFunc?.invoke()
+            }.show()
+    }
+
+    fun EditText.watchTextChange(
+        afterTextChanged: ((String) -> Unit)? = null,
+        onTextChanged: ((String) -> Unit)? = null
+    ) {
+        this.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+                afterTextChanged?.invoke(s.toString().trim())
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                onTextChanged?.invoke(s.toString())
+            }
+        })
+    }
 }
